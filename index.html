@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Placement Prep Agent | IBM watsonx Orchestrate</title>
+
+<style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --navy-dark:   #050d1f;
+      --navy:        #0a1628;
+      --navy-mid:    #0f2044;
+      --navy-light:  #162a55;
+      --accent:      #1a91da;
+      --accent-teal: #00c7b1;
+      --accent-glow: rgba(26, 145, 218, 0.18);
+      --text-primary: #e8edf5;
+      --text-muted:   #8a9bbf;
+      --text-dim:     #4a5a7a;
+      --border:       rgba(26, 145, 218, 0.18);
+      --card-bg:      rgba(15, 32, 68, 0.7);
+      --radius:       12px;
+      --radius-lg:    20px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, "Segoe UI", "Inter", system-ui, sans-serif;
+      background-color: var(--navy-dark);
+      color: var(--text-primary);
+      line-height: 1.7;
+      font-size: 15px;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+    }
+
+    h3 {
+      font-size: 1.15rem;
+    }
+
+    p {
+      color: var(--text-muted);
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-in:nth-child(1) {
+      transition-delay: 0s;
+    }
+
+    .fade-in:nth-child(2) {
+      transition-delay: 0.1s;
+    }
+
+    .fade-in:nth-child(3) {
+      transition-delay: 0.2s;
+    }
+
+    .fade-in:nth-child(4) {
+      transition-delay: 0.3s;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section {
+      padding: 96px 0;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .section-sub {
+      max-width: 560px;
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 56px;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(5, 13, 31, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(
+        135deg,
+        var(--accent) 0%,
+        var(--accent-teal) 100%
+      );
+      border-radius: 6px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+      padding: 5px;
+    }
+
+    .logo-mark span {
+      background: #fff;
+      border-radius: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: all 0.22s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(
+        135deg,
+        var(--accent) 0%,
+        #0f6eb5 100%
+      );
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(26, 145, 218, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(26, 145, 218, 0.45);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 1.5px solid var(--accent);
+    }
+
+    .btn-outline:hover {
+      background: var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 62px;
+    }
+
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(
+          rgba(26, 145, 218, 0.04) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(26, 145, 218, 0.04) 1px,
+          transparent 1px
+        );
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    #hero::after {
+      content: '';
+      position: absolute;
+      top: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 500px;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(26, 145, 218, 0.12) 0%,
+        rgba(0, 199, 177, 0.05) 45%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(26, 145, 218, 0.1);
+      border: 1px solid rgba(26, 145, 218, 0.3);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      margin-bottom: 28px;
+    }
+
+    .hero-badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent-teal);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.3);
+      }
+    }
+
+    .hero-title {
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
+
+    .hero-title .accent-word {
+      background: linear-gradient(
+        90deg,
+        var(--accent) 0%,
+        var(--accent-teal) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-tagline {
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      max-width: 540px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn-hero {
+      padding: 14px 32px;
+      font-size: 1rem;
+    }
+
+    #features {
+      background: var(--navy);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(230px, 1fr)
+      );
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      transition:
+        border-color 0.3s,
+        transform 0.3s,
+        box-shadow 0.3s;
+      backdrop-filter: blur(8px);
+    }
+
+    .feature-card:hover {
+      border-color: rgba(26, 145, 218, 0.5);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      position: relative;
+    }
+
+    .icon-roadmap {
+      background: rgba(26, 145, 218, 0.15);
+    }
+
+    .icon-mock {
+      background: rgba(0, 199, 177, 0.15);
+    }
+
+    .icon-gap {
+      background: rgba(163, 85, 232, 0.15);
+    }
+
+    .icon-pdf {
+      background: rgba(255, 176, 0, 0.15);
+    }
+
+    .icon-roadmap::before {
+      content: '';
+      width: 22px;
+      height: 22px;
+      border: 3px solid var(--accent);
+      border-radius: 50%;
+      box-shadow: 8px 0 0 var(--accent-teal);
+    }
+
+    .icon-mock::before {
+      content: '';
+      width: 20px;
+      height: 16px;
+      border: 3px solid var(--accent-teal);
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .icon-mock::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-right: 3px solid var(--accent-teal);
+      border-bottom: 3px solid var(--accent-teal);
+      transform: rotate(45deg) translateY(-6px);
+    }
+
+    .icon-gap::before {
+      content: '';
+      width: 20px;
+      height: 20px;
+      border: 3px solid #a355e8;
+      border-radius: 4px;
+      clip-path: polygon(
+        0 100%,
+        30% 60%,
+        60% 75%,
+        100% 20%,
+        100% 100%
+      );
+      background: rgba(163, 85, 232, 0.3);
+    }
+
+    .icon-pdf::before {
+      content: '';
+      width: 18px;
+      height: 22px;
+      border: 3px solid #ffb000;
+      border-radius: 3px;
+    }
+
+    .icon-pdf::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 2px;
+      background: #ffb000;
+      border-radius: 1px;
+      box-shadow:
+        0 5px 0 #ffb000,
+        0 -5px 0 #ffb000;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    #how-it-works {
+      background: var(--navy-dark);
+    }
+
+    .steps-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      position: relative;
+    }
+
+    .steps-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: calc(16.66% + 12px);
+      right: calc(16.66% + 12px);
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        var(--accent) 0%,
+        var(--accent-teal) 100%
+      );
+      opacity: 0.35;
+    }
+
+    .step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .step-number {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--navy-mid);
+      border: 2px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--accent);
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 0 6px var(--navy-dark);
+    }
+
+    .step-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .step-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .step-visual {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius);
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .visual-1 {
+      background: rgba(26, 145, 218, 0.1);
+      border: 1.5px solid rgba(26, 145, 218, 0.3);
+    }
+
+    .visual-2 {
+      background: rgba(0, 199, 177, 0.1);
+      border: 1.5px solid rgba(0, 199, 177, 0.3);
+    }
+
+    .visual-3 {
+      background: rgba(163, 85, 232, 0.1);
+      border: 1.5px solid rgba(163, 85, 232, 0.3);
+    }
+
+    #live-agent {
+      background: var(--navy);
+      padding: 96px 0 80px;
+    }
+
+    .agent-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .agent-header h2 {
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .agent-header p {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .agent-pointer {
+      max-width: 500px;
+      margin: 0 auto 30px;
+      text-align: center;
+      padding: 48px 32px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(8px);
+    }
+
+    .pointer-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      background: linear-gradient(
+        135deg,
+        var(--accent) 0%,
+        var(--accent-teal) 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: launcherPulse 2.4s ease-in-out infinite;
+    }
+
+    .pointer-icon::before {
+      content: '';
+      width: 26px;
+      height: 20px;
+      background: #fff;
+      border-radius: 6px 6px 6px 2px;
+    }
+
+    .pointer-icon::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      bottom: 20px;
+      left: 24px;
+      clip-path: polygon(
+        0 0,
+        100% 0,
+        0 100%
+      );
+    }
+
+    @keyframes launcherPulse {
+      0% {
+        box-shadow:
+          0 0 0 0 rgba(26, 145, 218, 0.45);
+      }
+
+      70% {
+        box-shadow:
+          0 0 0 22px rgba(26, 145, 218, 0);
+      }
+
+      100% {
+        box-shadow:
+          0 0 0 0 rgba(26, 145, 218, 0);
+      }
+    }
+
+    .pointer-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .pointer-subtext {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /*
+      IMPORTANT:
+      IBM watsonx Orchestrate uses #root.
+      Do NOT use display:none here.
+    */
+    #root {
+      display: block;
+      width: 100%;
+      min-height: 1px;
+    }
+
+    footer {
+      background: var(--navy-dark);
+      border-top: 1px solid var(--border);
+      padding: 36px 24px;
+      text-align: center;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .footer-ibm-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(26, 145, 218, 0.08);
+      border: 1px solid rgba(26, 145, 218, 0.2);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .ibm-block {
+      display: grid;
+      grid-template-columns: repeat(8, 2px);
+      grid-template-rows: repeat(5, 2px);
+      gap: 1px;
+    }
+
+    .ibm-block span {
+      background: var(--accent);
+      border-radius: 0.5px;
+    }
+
+    .footer-copy {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .steps-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+      }
+
+      .steps-wrapper::before {
+        display: none;
+      }
+
+      .step {
+        max-width: 320px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .hero-cta {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: 64px 0;
+      }
+    }
+</style>
+</head>
+
+<body>
+
+<nav aria-label="Main navigation">
+  <div class="nav-inner">
+
+    <a href="#hero" class="nav-logo">
+
+      <div class="logo-mark" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      PlacementPrep AI
+    </a>
+
+    <ul class="nav-links">
+      <li>
+        <a href="#features">Features</a>
+      </li>
+
+      <li>
+        <a href="#how-it-works">How It Works</a>
+      </li>
+
+      <li>
+        <a href="#live-agent">Try the Agent</a>
+      </li>
+    </ul>
+
+    <a
+      href="#live-agent"
+      class="btn btn-primary"
+      style="padding:9px 20px; font-size:0.83rem;"
+      id="nav-try-btn"
+    >
+      Get Started
+    </a>
+
+  </div>
+</nav>
+
+
+<section id="hero">
+
+  <div class="container">
+
+    <div class="hero-content">
+
+      <div
+        class="hero-badge"
+        aria-label="Powered by IBM watsonx Orchestrate"
+      >
+        <span
+          class="hero-badge-dot"
+          aria-hidden="true"
+        ></span>
+
+        Powered by IBM watsonx Orchestrate
+      </div>
+
+
+      <h1 class="hero-title">
+
+        AI
+        <span class="accent-word">
+          Placement Prep
+        </span>
+
+        <br />
+
+        Agent
+
+      </h1>
+
+
+      <p class="hero-tagline">
+        Your personalized roadmap to placement success —
+        powered by AI, tailored to your profile, and ready
+        to prepare you for any campus drive.
+      </p>
+
+
+      <div class="hero-cta">
+
+        <a
+          href="#live-agent"
+          class="btn btn-primary btn-hero"
+          id="try-agent-btn"
+        >
+          Try the Agent
+
+          <span
+            aria-hidden="true"
+            style="
+              display:inline-block;
+              width:7px;
+              height:7px;
+              border-right:2px solid #fff;
+              border-bottom:2px solid #fff;
+              transform:rotate(-45deg) translateY(1px);
+            "
+          ></span>
+
+        </a>
+
+
+        <a
+          href="#features"
+          class="btn btn-outline btn-hero"
+        >
+          Explore Features
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="features" class="section">
+
+  <div class="container">
+
+    <span class="section-label">
+      What It Does
+    </span>
+
+    <h2 class="section-title">
+      Everything you need to crack placements
+    </h2>
+
+    <p class="section-sub">
+      The agent evaluates your background and builds a
+      targeted preparation plan so you walk into every
+      interview fully prepared.
+    </p>
+
+
+    <div class="features-grid">
+
+      <div class="feature-card fade-in">
+
+        <div
+          class="feature-icon icon-roadmap"
+          aria-hidden="true"
+        ></div>
+
+        <h3>
+          Personalized Roadmap
+        </h3>
+
+        <p>
+          Generates a week-by-week study plan based on
+          your branch, target role, skills, and available
+          time before the campus drive.
+        </p>
+
+      </div>
+
+
+      <div class="feature-card fade-in">
+
+        <div
+          class="feature-icon icon-mock"
+          aria-hidden="true"
+        ></div>
+
+        <h3>
+          Role-Specific Mock Interview Questions
+        </h3>
+
+        <p>
+          Curates technical and HR questions for your
+          exact target role — SDE, Data Analyst,
+          Consultant, and more — drawn from real
+          placement patterns.
+        </p>
+
+      </div>
+
+
+      <div class="feature-card fade-in">
+
+        <div
+          class="feature-icon icon-gap"
+          aria-hidden="true"
+        ></div>
+
+        <h3>
+          Skill Gap Analysis
+        </h3>
+
+        <p>
+          Compares your current skill set against what
+          top recruiters demand and highlights exactly
+          which topics need the most attention.
+        </p>
+
+      </div>
+
+
+      <div class="feature-card fade-in">
+
+        <div
+          class="feature-icon icon-pdf"
+          aria-hidden="true"
+        ></div>
+
+        <h3>
+          Downloadable Prep Plan (PDF)
+        </h3>
+
+        <p>
+          Export your complete personalized preparation
+          roadmap as a PDF to study offline, share with
+          peers, or track daily progress.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="how-it-works" class="section">
+
+  <div class="container">
+
+    <span class="section-label">
+      The Process
+    </span>
+
+    <h2 class="section-title">
+      Three steps to placement readiness
+    </h2>
+
+    <p class="section-sub">
+      The agent takes just minutes to set up and delivers
+      an actionable plan you can start following immediately.
+    </p>
+
+
+    <div class="steps-wrapper">
+
+      <div class="step fade-in">
+
+        <div
+          class="step-number"
+          aria-label="Step 1"
+        >
+          1
+        </div>
+
+
+        <div
+          class="step-visual visual-1"
+          aria-hidden="true"
+          style="
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:5px;
+          "
+        >
+
+          <div
+            style="
+              width:22px;
+              height:22px;
+              border-radius:50%;
+              background:rgba(26,145,218,0.4);
+              border:2px solid var(--accent);
+            "
+          ></div>
+
+          <div
+            style="
+              width:36px;
+              height:3px;
+              border-radius:2px;
+              background:var(--accent);
+              opacity:0.7;
+            "
+          ></div>
+
+          <div
+            style="
+              width:26px;
+              height:2px;
+              border-radius:2px;
+              background:var(--accent);
+              opacity:0.4;
+            "
+          ></div>
+
+        </div>
+
+
+        <p class="step-title">
+          Share Your Profile
+        </p>
+
+        <p class="step-desc">
+          Tell the agent your branch, degree year,
+          target companies, known skills, and available
+          preparation time.
+        </p>
+
+      </div>
+
+
+      <div class="step fade-in">
+
+        <div
+          class="step-number"
+          aria-label="Step 2"
+        >
+          2
+        </div>
+
+
+        <div
+          class="step-visual visual-2"
+          aria-hidden="true"
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            position:relative;
+          "
+        >
+
+          <div
+            style="
+              width:38px;
+              height:38px;
+              border:2.5px solid var(--accent-teal);
+              border-radius:50%;
+              opacity:0.6;
+            "
+          ></div>
+
+          <div
+            style="
+              position:absolute;
+              width:20px;
+              height:20px;
+              border:2px solid var(--accent-teal);
+              border-radius:50%;
+            "
+          ></div>
+
+          <div
+            style="
+              position:absolute;
+              width:6px;
+              height:6px;
+              background:var(--accent-teal);
+              border-radius:50%;
+            "
+          ></div>
+
+        </div>
+
+
+        <p class="step-title">
+          Agent Analyses It
+        </p>
+
+        <p class="step-desc">
+          IBM watsonx Orchestrate processes your inputs
+          and maps them against industry benchmarks
+          and recruiter expectations.
+        </p>
+
+      </div>
+
+
+      <div class="step fade-in">
+
+        <div
+          class="step-number"
+          aria-label="Step 3"
+        >
+          3
+        </div>
+
+
+        <div
+          class="step-visual visual-3"
+          aria-hidden="true"
+          style="
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            gap:6px;
+            padding:12px;
+          "
+        >
+
+          <div
+            style="
+              display:flex;
+              align-items:center;
+              gap:6px;
+            "
+          >
+
+            <div
+              style="
+                width:8px;
+                height:8px;
+                border-radius:50%;
+                background:#a355e8;
+                flex-shrink:0;
+              "
+            ></div>
+
+            <div
+              style="
+                flex:1;
+                height:3px;
+                border-radius:2px;
+                background:rgba(163,85,232,0.5);
+              "
+            ></div>
+
+          </div>
+
+
+          <div
+            style="
+              display:flex;
+              align-items:center;
+              gap:6px;
+            "
+          >
+
+            <div
+              style="
+                width:8px;
+                height:8px;
+                border-radius:50%;
+                background:#a355e8;
+                flex-shrink:0;
+              "
+            ></div>
+
+            <div
+              style="
+                flex:1;
+                height:3px;
+                border-radius:2px;
+                background:rgba(163,85,232,0.35);
+              "
+            ></div>
+
+          </div>
+
+
+          <div
+            style="
+              display:flex;
+              align-items:center;
+              gap:6px;
+            "
+          >
+
+            <div
+              style="
+                width:8px;
+                height:8px;
+                border-radius:50%;
+                background:#a355e8;
+                flex-shrink:0;
+                opacity:0.5;
+              "
+            ></div>
+
+            <div
+              style="
+                flex:1;
+                height:3px;
+                border-radius:2px;
+                background:rgba(163,85,232,0.2);
+              "
+            ></div>
+
+          </div>
+
+        </div>
+
+
+        <p class="step-title">
+          Get Your Personalized Roadmap
+        </p>
+
+        <p class="step-desc">
+          Receive a tailored roadmap with mock questions,
+          skill gaps highlighted, and an exportable PDF
+          prep plan — all in one conversation.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="live-agent">
+
+  <div class="container">
+
+    <div class="agent-header fade-in">
+
+      <span class="section-label">
+        Live AI Agent
+      </span>
+
+      <h2>
+        Chat With Your Prep Agent
+      </h2>
+
+      <p>
+        Start a conversation — share your profile and get
+        your personalized placement preparation plan instantly.
+      </p>
+
+    </div>
+
+
+    <div class="agent-pointer fade-in">
+
+      <div
+        class="pointer-icon"
+        aria-hidden="true"
+      ></div>
+
+      <p class="pointer-text">
+        Your AI agent is live in the bottom-right corner
+      </p>
+
+      <p class="pointer-subtext">
+        Click the chat icon to start your personalized prep session
+      </p>
+
+    </div>
+
+
+    <!--
+      IMPORTANT:
+      Do NOT hide this element.
+
+      IBM watsonx Orchestrate is configured with:
+      rootElementID: "root"
+    -->
+    <div id="root"></div>
+
+  </div>
+
+</section>
+
+
+<footer>
+
+  <div class="footer-inner">
+
+    <div class="footer-brand">
+
+      <span>
+        AI Placement Prep Agent
+      </span>
+
+      <span style="color:var(--text-dim);">
+        ·
+      </span>
+
+
+      <div class="footer-ibm-badge">
+
+        <div
+          style="
+            display:grid;
+            grid-template-columns:repeat(3,3px);
+            gap:1.5px;
+          "
+          aria-hidden="true"
+        >
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+          <span
+            style="
+              width:3px;
+              height:3px;
+              background:var(--accent);
+              border-radius:0.5px;
+              display:block;
+            "
+          ></span>
+
+        </div>
+
+        Built using IBM watsonx Orchestrate
+
+      </div>
+
+    </div>
+
+
+    <p class="footer-copy">
+      © 2025 PlacementPrep AI. All rights reserved.
+    </p>
+
+  </div>
+
+</footer>
+
+
+<!--
+  Page animations and navigation
+-->
+<script>
+
+  (function () {
+
+    var observer = new IntersectionObserver(
+
+      function (entries) {
+
+        entries.forEach(function (entry) {
+
+          if (entry.isIntersecting) {
+
+            entry.target.classList.add('visible');
+
+            observer.unobserve(entry.target);
+
+          }
+
+        });
+
+      },
+
+      {
+        threshold: 0.12
+      }
+
+    );
+
+
+    document
+      .querySelectorAll('.fade-in')
+      .forEach(function (el) {
+
+        observer.observe(el);
+
+      });
+
+  })();
+
+
+  function goToAgent(e) {
+
+    if (e) {
+      e.preventDefault();
+    }
+
+    var target = document.getElementById('live-agent');
+
+    if (target) {
+
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+
+    }
+
+  }
+
+
+  document
+    .getElementById('try-agent-btn')
+    .addEventListener('click', goToAgent);
+
+
+  document
+    .getElementById('nav-try-btn')
+    .addEventListener('click', goToAgent);
+
+</script>
+
+
+<!--
+  IBM watsonx Orchestrate AI AGENT
+-->
+<script>
+  window.wxOConfiguration = {
+    orchestrationID: "d96b2830487542a2b51489b28efac597_94ed8fa9-5c1c-4a75-8a46-6abcd6f78ba1",
+    hostURL: "https://au-syd.watson-orchestrate.cloud.ibm.com",
+    rootElementID: "root",
+    deploymentPlatform: "ibmcloud",
+    crn: "crn:v1:bluemix:public:watsonx-orchestrate:au-syd:a/d96b2830487542a2b51489b28efac597:94ed8fa9-5c1c-4a75-8a46-6abcd6f78ba1::",
+    chatOptions: {
+        agentId: "0e0ca19a-8725-4608-bc60-4e6ff379ca6c", 
+    }
+  };
+  setTimeout(function () {
+    const script = document.createElement('script');
+    script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+    script.addEventListener('load', function () {
+        wxoLoader.init();
+    });
+    document.head.appendChild(script);
+  }, 0);                     
+</script>
+
+
+</body>
+</html>
